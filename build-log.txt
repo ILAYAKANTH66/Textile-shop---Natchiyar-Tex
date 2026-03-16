@@ -1,0 +1,24 @@
+
+> natchiyar-tex@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.5s
+  Running TypeScript ...
+Failed to compile.
+
+./app/admin/(dashboard)/page.tsx:11:13
+Type error: Parameter 'o' implicitly has an 'any' type.
+
+[0m [90m  9 |[39m   [36mconst[39m totalOrders [33m=[39m orders[33m.[39mlength[33m;[39m
+ [90m 10 |[39m   [36mconst[39m totalRevenue [33m=[39m orders
+[31m[1m>[22m[39m[90m 11 |[39m     [33m.[39mfilter(o [33m=>[39m o[33m.[39mstatus [33m===[39m [32m'Confirmed'[39m)
+ [90m    |[39m             [31m[1m^[22m[39m
+ [90m 12 |[39m     [33m.[39mreduce((sum[33m,[39m o) [33m=>[39m sum [33m+[39m o[33m.[39mtotalAmount[33m,[39m [35m0[39m)[33m;[39m
+ [90m 13 |[39m   
+ [90m 14 |[39m   [36mconst[39m pendingOrders [33m=[39m orders[33m.[39mfilter(o [33m=>[39m o[33m.[39mstatus [33m===[39m [32m'Pending'[39m)[33m.[39mlength[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null

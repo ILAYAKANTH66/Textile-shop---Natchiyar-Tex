@@ -1,20 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## NATCHIYAR TEX (Wholesale)
+
+Full-stack Next.js (App Router) + Prisma project for a wholesale textile catalog with customer ordering and an admin dashboard.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+
+### Environment variables
+
+Create `.env` (already present for SQLite dev) or `.env.local` with at minimum:
+
+```bash
+# SQLite (dev)
+DATABASE_URL="file:./dev.db"
+
+# JWT (set your own for production)
+JWT_SECRET="change-me"
+```
+
+Optional email (order & signup confirmations) via SMTP:
+
+```bash
+SMTP_HOST="smtp.example.com"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER="username"
+SMTP_PASS="password"
+SMTP_FROM="NATCHIYAR TEX <no-reply@natchiyartex.com>"
+```
+
+Optional phone messaging provider (placeholder hook):
+
+```bash
+MESSAGING_PROVIDER="twilio"
+```
+
+### Database setup (SQLite dev)
+
+```bash
+npm install
+npx prisma db push
+npx prisma generate
+npx prisma db seed
+```
+
+### Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open the URL printed in the terminal (it may be `http://localhost:3001` if 3000 is already in use).
+
+### Admin login (seeded)
+
+- **URL**: `/admin/login`
+- **Email**: `admin@natchiyartex.com`
+- **Password**: `adminpassword`
+
+### Production / Cloud deployment notes
+
+- **PostgreSQL**: switch `DATABASE_URL` to a Postgres connection string and change `provider` in `prisma/schema.prisma` to `"postgresql"`.
+- Run `npm run build` and `npm start` for production.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
