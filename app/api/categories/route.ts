@@ -1,5 +1,6 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 
@@ -28,9 +29,9 @@ export async function POST(request: Request) {
     if (!(await isAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { name, description } = await request.json();
     if (!name) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
-    
+
     const slug = name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-    
+
     const category = await prisma.category.create({
       data: { name, slug, description }
     });

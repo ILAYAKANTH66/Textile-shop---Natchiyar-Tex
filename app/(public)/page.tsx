@@ -1,8 +1,7 @@
-import { prisma } from '@/lib/prisma';
+export const dynamic = "force-dynamic";
+import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import FallbackImage from '@/components/FallbackImage';
-
-export const revalidate = 60; // Revalidate every minute
 
 export default async function HomePage() {
   const products = await prisma.product.findMany({

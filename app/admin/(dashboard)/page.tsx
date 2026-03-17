@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/prisma';
+export const dynamic = "force-dynamic";
+import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
 export const revalidate = 0; // Always fresh for admin

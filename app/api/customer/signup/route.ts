@@ -1,5 +1,6 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { sendSignupConfirmationEmail } from '@/lib/signup-mailer';
 import { signToken } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
         email,
         mobileNumber,
         passwordHash,
-      },
+      } as any,
     });
 
     if (email) {

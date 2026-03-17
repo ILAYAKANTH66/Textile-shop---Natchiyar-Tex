@@ -1,15 +1,8 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
-
-/**
- * GET /api/auth/me
- *
- * Returns the currently authenticated user (customer or admin).
- * Used by protected client pages to verify session before showing content.
- * Returns 401 if no valid token is present.
- */
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
@@ -24,9 +17,9 @@ export async function GET() {
           where: { id: payload.sub as string },
           select: { name: true, mobileNumber: true }
         });
-        return NextResponse.json({ 
-          authenticated: true, 
-          role: 'customer', 
+        return NextResponse.json({
+          authenticated: true,
+          role: 'customer',
           userId: payload.sub,
           name: user?.name || user?.mobileNumber || 'Customer'
         });
@@ -42,9 +35,9 @@ export async function GET() {
           where: { id: payload.sub as string },
           select: { email: true }
         });
-        return NextResponse.json({ 
-          authenticated: true, 
-          role: 'admin', 
+        return NextResponse.json({
+          authenticated: true,
+          role: 'admin',
           userId: payload.sub,
           name: admin?.email?.split('@')[0] || 'Admin'
         });
