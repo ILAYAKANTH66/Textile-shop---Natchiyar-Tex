@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 type CartItem = {
@@ -127,7 +126,7 @@ export default function CartPage() {
               return (
                 <div key={it.id} style={{ display: 'grid', gridTemplateColumns: '90px 1fr 160px', gap: '1rem', padding: '1rem', borderBottom: '1px solid var(--color-border)' }}>
                   <div style={{ position: 'relative', width: 90, height: 110, borderRadius: 10, overflow: 'hidden' }}>
-                    {img ? <Image src={img} alt={it.product.title} fill style={{ objectFit: 'cover' }} /> : null}
+                    {img ? <img src={img} alt={it.product.title} onError={(e) => e.currentTarget.src='/fallback.jpg'} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : null}
                   </div>
                   <div>
                     <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem' }}>{it.product.title}</div>

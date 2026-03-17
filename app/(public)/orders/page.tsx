@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import Image from 'next/image';
+import FallbackImage from '@/components/FallbackImage';
 
 async function getCustomerOrders() {
   const cookieStore = await cookies();
@@ -66,7 +66,7 @@ export default async function OrdersPage() {
                   <div key={item.id} style={styles.itemRow}>
                     <div style={styles.itemImage}>
                        {item.product.imageUrl ? (
-                         <Image src={item.product.imageUrl} alt={item.product.title} fill style={{objectFit: 'cover'}} />
+                         <FallbackImage src={item.product.imageUrl} alt={item.product.title} style={{objectFit: 'cover', width: '100%', height: '100%'}} />
                        ) : <div style={{width:'100%', height:'100%', backgroundColor:'#eee'}}/>}
                     </div>
                     <div style={styles.itemDetails}>

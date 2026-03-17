@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 
 function CheckoutForm() {
   const searchParams = useSearchParams();
@@ -193,7 +192,12 @@ function CheckoutForm() {
             <h2 style={styles.cardTitle}>Order Summary</h2>
             <div style={styles.productSummary}>
                <div style={styles.productImage}>
-                 <Image src={product.imageUrl} alt={product.title} fill style={{objectFit: 'cover'}} />
+                 <img 
+                   src={product.imageUrl} 
+                   alt={product.title} 
+                   onError={(e) => e.currentTarget.src='/fallback.jpg'}
+                   style={{ objectFit: 'cover', width: '100%', height: '100%' }} 
+                 />
                </div>
                <div style={styles.productDetails}>
                  <h4 style={styles.productTitle}>{product.title}</h4>
