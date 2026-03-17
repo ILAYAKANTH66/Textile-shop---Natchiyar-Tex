@@ -34,3 +34,16 @@ NATCHIYAR TEX`;
   });
 }
 
+export async function sendOtpEmail(params: { to: string; otp: string }) {
+  if (!params.to) return;
+  const from = process.env.SMTP_FROM || 'no-reply@natchiyartex.com';
+  const subject = 'Your NATCHIYAR TEX Login OTP';
+  const text = `Your login One Time Password (OTP) is: ${params.otp}\n\nThis OTP is valid for 5 minutes.`;
+
+  await transporter.sendMail({
+    from,
+    to: params.to,
+    subject,
+    text,
+  });
+}

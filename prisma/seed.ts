@@ -75,7 +75,7 @@ async function main() {
     }
   }
 
-  // Define authentic products with 3 distinct images each (model, full, close-up)
+  // Define authentic products with 3-4 distinct images each
   const productsData = [
     {
       title: 'Traditional Magenta Kanchipuram Silk Saree',
@@ -83,9 +83,9 @@ async function main() {
       price: 15500.0,
       catSlug: 'kanchipuram-silk',
       images: [
-        'https://images.unsplash.com/photo-1610189014168-96f7c5d4ef22?q=80&w=1200&auto=format&fit=crop', // Model/Action view
-        'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop', // Full drape view
-        'https://images.unsplash.com/photo-1596459427671-550fc9aa2f5f?q=80&w=1200&auto=format&fit=crop'  // Texture/Border lookup
+        'https://images.unsplash.com/photo-1610189014168-96f7c5d4ef22?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1583391733959-f5b2ca80dd0d?q=80&w=1200&auto=format&fit=crop'
       ]
     },
     {
@@ -95,8 +95,19 @@ async function main() {
       catSlug: 'kanchipuram-silk',
       images: [
         'https://images.unsplash.com/photo-1583391733959-f5b2ca80dd0d?q=80&w=1200&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1605649487212-4d4ce72635bc?q=80&w=1200&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1596459427497-872f23207aa1?q=80&w=1200&auto=format&fit=crop'
+        'https://images.unsplash.com/photo-1610189014168-96f7c5d4ef22?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1596459427671-550fc9aa2f5f?q=80&w=1200&auto=format&fit=crop'
+      ]
+    },
+    {
+      title: 'Zari Bordered Kanchipuram Gold Saree',
+      description: 'Golden hue Kanchipuram silk saree with traditional borders and temple motifs. A timeless classic for south Indian ceremonies.',
+      price: 22000.0,
+      catSlug: 'kanchipuram-silk',
+      images: [
+        'https://images.unsplash.com/photo-1596459427671-550fc9aa2f5f?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1583391733959-f5b2ca80dd0d?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1610189014168-96f7c5d4ef22?q=80&w=1200&auto=format&fit=crop'
       ]
     },
     {
@@ -133,6 +144,17 @@ async function main() {
       ]
     },
     {
+      title: 'Pastel Pink Mysore Silk Delight',
+      description: 'Soft pastel pink Mysore silk saree with signature thin zari border. Perfect for evening functions and office wear.',
+      price: 8800.0,
+      catSlug: 'mysore-silk',
+      images: [
+        'https://images.unsplash.com/photo-1520975869010-0b1f0bb7cf5a?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1583391733975-d1ec2a7f5a4a?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1200&auto=format&fit=crop'
+      ]
+    },
+    {
       title: 'Mustard Yellow Chettinad Cotton Saree',
       description: 'Authentic Chettinad handloom cotton woven in a brilliant mustard yellow with traditional bold contrast borders and earthy stripes.',
       price: 2400.0,
@@ -140,6 +162,17 @@ async function main() {
       images: [
         'https://images.unsplash.com/photo-1610189014674-88aa3a30c5e3?q=80&w=1200&auto=format&fit=crop',
         'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1620799140856-9a5d3c35c2c5?q=80&w=1200&auto=format&fit=crop'
+      ]
+    },
+    {
+      title: 'Maroon Checkered Chettinad Cotton',
+      description: 'Traditional maroon and black checkered cotton saree from Chettinad. Durable, breathable, and culturally rich.',
+      price: 2600.0,
+      catSlug: 'chettinad-cotton',
+      images: [
+        'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1610189014674-88aa3a30c5e3?q=80&w=1200&auto=format&fit=crop',
         'https://images.unsplash.com/photo-1620799140856-9a5d3c35c2c5?q=80&w=1200&auto=format&fit=crop'
       ]
     },
@@ -155,6 +188,17 @@ async function main() {
       ]
     },
     {
+      title: 'Indigo Blue Handloom Cotton Saree',
+      description: 'Hand-dyed indigo blue cotton saree with handloom geometric patterns. A perfect blend of contemporary and traditional style.',
+      price: 2100.0,
+      catSlug: 'handloom-cotton',
+      images: [
+        'https://images.unsplash.com/photo-1520975682031-a8a2f83b3a42?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1601639011158-9cfb5a32279b?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1520975930439-3ef5a13f6b71?q=80&w=1200&auto=format&fit=crop'
+      ]
+    },
+    {
       title: 'Teal Blue Cotton Silk Festive Saree',
       description: 'The perfect blend of easy-to-drape cotton and the sheen of silk. This teal blue saree is ideal for festive parties and intimate gatherings.',
       price: 4500.0,
@@ -162,6 +206,17 @@ async function main() {
       images: [
         'https://images.unsplash.com/photo-1583391734208-bfba5a02e6c5?q=80&w=1200&auto=format&fit=crop',
         'https://images.unsplash.com/photo-1583391734005-4c07e05eb3dd?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1605649487212-4d4ce72635bc?q=80&w=1200&auto=format&fit=crop'
+      ]
+    },
+    {
+      title: 'Cream and Gold Cotton Silk Elegance',
+      description: 'Rich cream cotton silk with subtle gold motifs. A sophisticated choice for morning events and puja ceremonies.',
+      price: 5200.0,
+      catSlug: 'cotton-silk',
+      images: [
+        'https://images.unsplash.com/photo-1583391734005-4c07e05eb3dd?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1583391734208-bfba5a02e6c5?q=80&w=1200&auto=format&fit=crop',
         'https://images.unsplash.com/photo-1605649487212-4d4ce72635bc?q=80&w=1200&auto=format&fit=crop'
       ]
     }

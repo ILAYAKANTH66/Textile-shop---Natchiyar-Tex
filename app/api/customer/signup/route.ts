@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendSignupConfirmationEmail } from '@/lib/signup-mailer';
 import { signToken } from '@/lib/auth';
+import bcrypt from 'bcryptjs';
 
 function isEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -13,6 +14,7 @@ export async function POST(request: Request) {
     const name = String(body?.name || '').trim();
     const email = body?.email ? String(body.email).trim().toLowerCase() : null;
     const mobileNumber = body?.mobileNumber ? String(body.mobileNumber).trim() : null;
+    const password = body?.password ? String(body.password) : null;
 
     if (!name) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     if (!email && !mobileNumber) {
@@ -23,6 +25,9 @@ export async function POST(request: Request) {
     }
     if (mobileNumber && mobileNumber.replace(/\D/g, '').length < 10) {
       return NextResponse.json({ error: 'Invalid mobile number' }, { status: 400 });
+    }
+    if (email && !password) {
+      return NextResponse.json({ error: 'Password is required for email signup' }, { status: 400 });
     }
 
     const existing = await prisma.user.findFirst({
@@ -37,11 +42,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User already exists' }, { status: 400 });
     }
 
+    const passwordHash = password ? await bcrypt.hash(password, 10) : null;
+
     const user = await prisma.user.create({
       data: {
         name,
         email,
         mobileNumber,
+        passwordHash,
       },
     });
 

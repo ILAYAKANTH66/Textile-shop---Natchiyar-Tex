@@ -7,6 +7,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,6 +30,7 @@ export default function SignupPage() {
           name,
           email: email || null,
           mobileNumber: mobileNumber || null,
+          password: password || null,
         }),
       });
       const data = await res.json();
@@ -61,6 +63,18 @@ export default function SignupPage() {
             <label style={styles.label}>Email (optional)</label>
             <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@example.com" />
           </div>
+          {email && (
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Password</label>
+              <input 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                type="password" 
+                placeholder="********" 
+                required={!!email}
+              />
+            </div>
+          )}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Mobile number (optional)</label>
             <input

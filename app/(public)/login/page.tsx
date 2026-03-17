@@ -6,62 +6,84 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 function LoginForm() {
-  const [mobileNumber, setMobileNumber] = useState('');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(1); // 1: identifier, 2: password (email) or otp (mobile)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isEmailLogin, setIsEmailLogin] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
 
-  const handleRequestOtp = async (e: React.FormEvent) => {
+  const isEmail = (val: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+
+  const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (mobileNumber.length < 10) {
-      setError('Please enter a valid 10-digit mobile number');
+    setError('');
+    const id = identifier.trim();
+    if (id.length < 5) {
+      setError('Please enter a valid email or mobile number');
       return;
     }
-    setLoading(true);
-    setError('');
 
-    try {
-      const res = await fetch('/api/customer/otp-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobileNumber }),
-      });
+    const emailMode = isEmail(id);
+    setIsEmailLogin(emailMode);
 
-      if (res.ok) {
-        setStep(2);
-      } else {
-        const data = await res.json();
-        setError(data.error || 'Failed to request OTP');
+    if (emailMode) {
+      // For email, we move to password entry
+      setStep(2);
+    } else {
+      // For mobile, we request OTP
+      setLoading(true);
+      try {
+        const res = await fetch('/api/customer/otp-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier: id }),
+        });
+        if (res.ok) {
+          setStep(2);
+        } else {
+          const data = await res.json();
+          setError(data.error || 'Failed to request OTP');
+        }
+      } catch (err) {
+        setError('An error occurred. Please try again.');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const res = await fetch('/api/customer/otp-verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobileNumber, otp }),
-      });
+      let res;
+      if (isEmailLogin) {
+        res = await fetch('/api/customer/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: identifier.trim(), password }),
+        });
+      } else {
+        res = await fetch('/api/customer/otp-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier: identifier.trim(), otp }),
+        });
+      }
 
+      const data = await res.json();
       if (res.ok) {
         router.push(redirect);
         router.refresh();
       } else {
-        const data = await res.json();
-        setError(data.error || 'Invalid OTP');
+        setError(data.error || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -75,29 +97,31 @@ function LoginForm() {
       <div style={styles.card}>
         <h1 style={styles.title}>Welcome to Natchiyar Tex</h1>
         <p style={styles.subtitle}>
-          {step === 1 ? 'Enter your mobile number to sign in or create an account.' : `Enter the OTP sent to ${mobileNumber} (Use 123456 for demo)`}
+          {step === 1 
+            ? 'Enter your email or mobile number to sign in or create an account.' 
+            : isEmailLogin 
+              ? `Enter password for ${identifier}` 
+              : `Enter the OTP sent to ${identifier} (Use 123456 for demo)`
+          }
         </p>
 
         {error && <div style={styles.error}>{error}</div>}
 
         {step === 1 ? (
-          <form onSubmit={handleRequestOtp} style={styles.form}>
+          <form onSubmit={handleNext} style={styles.form}>
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Mobile Number</label>
-              <div style={styles.inputPrefixWrapper}>
-                <span style={styles.prefix}>+91</span>
-                <input
-                  type="tel"
-                  value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                  placeholder="98765 43210"
-                  style={{...styles.input, paddingLeft: '3.5rem'}}
-                  required
-                />
-              </div>
+              <label style={styles.label}>Email or Mobile Number</label>
+              <input
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="you@example.com or 9876543210"
+                style={{...styles.input, padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)'}}
+                required
+              />
             </div>
             <button type="submit" style={styles.button} disabled={loading}>
-              {loading ? 'Sending...' : 'Request OTP'}
+              {loading ? 'Processing...' : 'Next'}
             </button>
             <button
               type="button"
@@ -108,34 +132,41 @@ function LoginForm() {
             </button>
           </form>
         ) : (
-          <form onSubmit={handleVerifyOtp} style={styles.form}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>One Time Password</label>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="123456"
-                style={{...styles.input, textAlign: 'center', letterSpacing: '0.25rem', fontSize: '1.25rem'}}
-                required
-              />
-            </div>
+          <form onSubmit={handleLogin} style={styles.form}>
+            {isEmailLogin ? (
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="********"
+                  style={{...styles.input, padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)'}}
+                  required
+                />
+              </div>
+            ) : (
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>One Time Password</label>
+                <input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  style={{...styles.input, textAlign: 'center', letterSpacing: '0.25rem', fontSize: '1.25rem'}}
+                  required
+                />
+              </div>
+            )}
             <button type="submit" style={styles.button} disabled={loading}>
-              {loading ? 'Verifying...' : 'Verify & Login'}
+              {loading ? 'Logging in...' : 'Login'}
             </button>
             <button 
               type="button" 
               onClick={() => setStep(1)} 
               style={styles.textButton}
             >
-              Change Mobile Number
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push('/signup')}
-              style={styles.textButton}
-            >
-              Create an account
+              Change Email/Mobile
             </button>
           </form>
         )}
