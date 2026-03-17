@@ -43,6 +43,15 @@ export default function AdminLayout({
             Products
           </Link>
           <Link 
+            href="/admin/categories" 
+            style={{
+              ...styles.navItem,
+              ...(pathname === '/admin/categories' ? styles.activeNavItem : {})
+            }}
+          >
+            Categories
+          </Link>
+          <Link 
             href="/admin/orders" 
             style={{
               ...styles.navItem,

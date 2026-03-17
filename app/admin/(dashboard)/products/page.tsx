@@ -8,6 +8,7 @@ export default function ProductsManager() {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     fetchProducts();
@@ -15,41 +16,99 @@ export default function ProductsManager() {
 
   const fetchProducts = async () => {
     setLoading(true);
-    const res = await fetch('/api/products');
-    const data = await res.json();
-    setProducts(data.products || []);
+    const [pRes, cRes] = await Promise.all([
+      fetch('/api/products'),
+      fetch('/api/categories')
+    ]);
+    const pData = await pRes.json();
+    const cData = await cRes.json();
+    setProducts(pData.products || []);
+    setCategories(cData.categories || []);
     setLoading(false);
   };
 
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
   const handleOpenModal = (product = null) => {
-    setEditingProduct(product || { title: '', description: '', price: '', imageUrl: '', category: 'General', isAvailable: true });
+    setEditingProduct(product || { title: '', description: '', price: '', imageUrl: '', categoryId: '', isAvailable: true, images: [] });
+    setSelectedFiles([]);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
+    setSelectedFiles([]);
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     
+    let uploadedUrls: string[] = [];
+
+    // If there are selected files, upload them first
+    if (selectedFiles.length > 0) {
+      if (selectedFiles.length < 3) {
+        alert('Please select at least 3 images.');
+        setSubmitting(false);
+        return;
+      }
+      
+      const formData = new FormData();
+      selectedFiles.forEach(file => formData.append('file', file));
+
+      try {
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!uploadRes.ok) {
+          throw new Error('Image upload failed');
+        }
+        
+        const uploadData = await uploadRes.json();
+        uploadedUrls = uploadData.urls;
+      } catch (err) {
+        alert('Error uploading images');
+        setSubmitting(false);
+        return;
+      }
+    } else {
+      // If editing and no new files selected, use existing images
+      if (editingProduct.images && editingProduct.images.length >= 3) {
+        uploadedUrls = editingProduct.images.map((img: any) => img.imageUrl);
+      } else {
+        alert('Please provide at least 3 images for the product.');
+        setSubmitting(false);
+        return;
+      }
+    }
+    
     const url = editingProduct.id ? `/api/products/${editingProduct.id}` : '/api/products';
     const method = editingProduct.id ? 'PUT' : 'POST';
+
+    // Set first image as primary imageUrl, and full array as images
+    const payload = {
+      ...editingProduct,
+      imageUrl: uploadedUrls[0],
+      images: uploadedUrls
+    };
 
     try {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingProduct),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
         await fetchProducts();
         closeModal();
       } else {
-        alert('Error saving product');
+        const body = await res.json();
+        alert(body.error || 'Error saving product');
       }
     } finally {
       setSubmitting(false);
@@ -100,7 +159,7 @@ export default function ProductsManager() {
                      <img src={p.imageUrl} alt={p.title} style={{width:'50px', height:'50px', objectFit:'cover', borderRadius:'4px'}} />
                    </td>
                    <td style={styles.td}>{p.title}</td>
-                   <td style={styles.td}>{p.category}</td>
+                   <td style={styles.td}>{p.category?.name || 'Uncategorized'}</td>
                    <td style={styles.td}>₹{p.price.toFixed(2)}</td>
                    <td style={styles.td}>
                      {p.isAvailable ? <span style={{color:'var(--color-success)'}}>Available</span> : <span style={{color:'var(--color-error)'}}>Hidden/Out of Stock</span>}
@@ -149,27 +208,38 @@ export default function ProductsManager() {
                 />
               </div>
               <div style={styles.inputGroup}>
-                <label style={styles.label}>Image URL</label>
+                <label style={styles.label}>Product Images (Select minimum 3)</label>
                 <input 
-                  value={editingProduct.imageUrl} 
-                  onChange={e => setEditingProduct({...editingProduct, imageUrl: e.target.value})} 
-                  required 
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={e => {
+                    if (e.target.files) {
+                      setSelectedFiles(Array.from(e.target.files));
+                    }
+                  }}
+                  required={!editingProduct.id}
                 />
+                {editingProduct.id && (
+                   <div style={{fontSize: '0.8rem', color: 'var(--color-text-muted)'}}>
+                     Current images: {editingProduct.images?.length || 1}
+                     <br/>
+                     Uploading new files will replace existing images.
+                   </div>
+                )}
               </div>
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Category</label>
                 <select 
-                  value={editingProduct.category} 
-                  onChange={e => setEditingProduct({...editingProduct, category: e.target.value})} 
+                  value={editingProduct.categoryId || ''} 
+                  onChange={e => setEditingProduct({...editingProduct, categoryId: e.target.value})} 
                   required 
                   style={{padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)', backgroundColor: 'white'}}
                 >
-                  <option value="General">General</option>
-                  <option value="Silk">Silk</option>
-                  <option value="Cotton">Cotton</option>
-                  <option value="Linen">Linen</option>
-                  <option value="Saree">Saree</option>
-                  <option value="Dhoti">Dhoti</option>
+                  <option value="">Select Category</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
                 </select>
               </div>
               <div style={styles.inputGroupRow}>

@@ -6,6 +6,7 @@ export default async function ShopPage() {
   const products = await prisma.product.findMany({
     where: { isAvailable: true },
     orderBy: { createdAt: 'desc' },
+    include: { category: true }
   });
 
   return (
@@ -28,7 +29,7 @@ export default async function ShopPage() {
               />
             </div>
             <div style={styles.cardContent}>
-              <p style={styles.category}>{product.category}</p>
+              <p style={styles.category}>{product.category?.name || 'Uncategorized'}</p>
               <h3 style={styles.productTitle}>{product.title}</h3>
               <p style={styles.productPrice}>₹{product.price.toFixed(2)}</p>
               <button style={styles.viewBtn}>View Details</button>

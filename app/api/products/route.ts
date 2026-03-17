@@ -28,7 +28,7 @@ export async function GET(request: Request) {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        include: { images: true },
+        include: { images: true, category: true },
       }),
       prisma.product.count({ where }),
     ]);
@@ -55,17 +55,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const data = await request.json();
+    const { title, description, price, imageUrl, images, categoryId, isAvailable } = await request.json();
     
+    if (!images || !Array.isArray(images) || images.length < 3) {
+      return NextResponse.json({ error: 'A minimum of 3 images must be provided.' }, { status: 400 });
+    }
+
+    const firstImage = images.length > 0 ? images[0] : imageUrl;
+
     const product = await prisma.product.create({
       data: {
-        title: data.title,
-        description: data.description,
-        price: parseFloat(data.price),
-        imageUrl: data.imageUrl,
-        category: data.category || 'General',
-        isAvailable: data.isAvailable ?? true,
+        title,
+        description,
+        price: parseFloat(price),
+        imageUrl: firstImage,
+        categoryId: categoryId || null,
+        isAvailable: isAvailable ?? true,
+        images: {
+          create: images.map((url: string, index: number) => ({
+            imageUrl: url,
+            order: index
+          }))
+        }
       },
+      include: { category: true, images: true }
     });
 
     return NextResponse.json({ success: true, product });

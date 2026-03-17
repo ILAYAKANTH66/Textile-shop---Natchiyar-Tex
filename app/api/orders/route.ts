@@ -7,17 +7,19 @@ import { sendOrderConfirmationPhoneMessage } from '@/lib/messaging';
 
 async function getUser() {
   const cookieStore = await cookies();
+
+  // Prioritize customer finding so that admins who are also logged in as customers
+  // can place orders successfully.
+  const customerToken = cookieStore.get('customer_token')?.value;
+  if (customerToken) {
+    const payload = await verifyToken(customerToken);
+    if (payload?.role === 'customer') return { id: payload.sub, role: 'customer' };
+  }
+
   const adminToken = cookieStore.get('admin_token')?.value;
   if (adminToken) {
     const payload = await verifyToken(adminToken);
     if (payload?.role === 'admin') return { id: payload.sub, role: 'admin' };
-  }
-
-  const customerCookieStore = await cookies();
-  const customerToken = customerCookieStore.get('customer_token')?.value;
-  if (customerToken) {
-    const payload = await verifyToken(customerToken);
-    if (payload?.role === 'customer') return { id: payload.sub, role: 'customer' };
   }
 
   return null;
@@ -99,6 +101,9 @@ export async function POST(request: Request) {
       if (!productExists) {
         console.error('[ORDER_ERROR] Product not found:', item.productId);
         return NextResponse.json({ error: `Product not found: ${item.productId}` }, { status: 400 });
+      }
+      if (Number(item.quantity) < 100) {
+        return NextResponse.json({ error: `Minimum order quantity for any item is 100 units. Found ${item.quantity} for product ${item.productId}` }, { status: 400 });
       }
       totalAmount += Number(item.quantity) * Number(item.priceAtTime);
     }

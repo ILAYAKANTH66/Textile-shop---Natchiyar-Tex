@@ -7,6 +7,7 @@ import Image from 'next/image';
 function CheckoutForm() {
   const searchParams = useSearchParams();
   const productId = searchParams.get('product');
+  const initialQtyParams = searchParams.get('quantity');
   const router = useRouter();
 
   const [product, setProduct] = useState<any>(null);
@@ -19,7 +20,7 @@ function CheckoutForm() {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [pincode, setPincode] = useState('');
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(initialQtyParams ? Math.max(100, Number(initialQtyParams)) : 100);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -40,7 +41,12 @@ function CheckoutForm() {
         return res.json();
       })
       .then(auth => {
-        if (!auth || auth.role !== 'customer') return;
+        if (!auth) return;
+        if (auth.role !== 'customer') {
+          setError('You must be logged in as a customer to place an order.');
+          setLoading(false);
+          return;
+        }
 
         // 2) Now fetch the product
         return fetch(`/api/products/${productId}`)
@@ -200,7 +206,7 @@ function CheckoutForm() {
             <div style={styles.summaryRow}>
               <span>Quantity</span>
               <div style={styles.quantityControl}>
-                <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} style={styles.qtyBtn}>-</button>
+                <button type="button" onClick={() => setQuantity(Math.max(100, quantity - 1))} style={styles.qtyBtn}>-</button>
                 <span>{quantity}</span>
                 <button type="button" onClick={() => setQuantity(quantity + 1)} style={styles.qtyBtn}>+</button>
               </div>

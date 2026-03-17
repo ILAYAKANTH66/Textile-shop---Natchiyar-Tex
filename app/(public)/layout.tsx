@@ -1,10 +1,45 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [user, setUser] = useState<{ authenticated: boolean; name?: string } | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+        } else {
+          setUser({ authenticated: false });
+        }
+      } catch {
+        setUser({ authenticated: false });
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/customer/logout', { method: 'POST' });
+      setUser({ authenticated: false });
+      router.push('/');
+      router.refresh();
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
+  };
+
   return (
     <div style={styles.shell}>
       <aside style={styles.sidebar}>
@@ -26,14 +61,23 @@ export default function PublicLayout({
         </nav>
 
         <div style={styles.sidebarFooter}>
-          <div style={styles.authRow}>
-            <Link href="/login" style={styles.loginButton}>
-              Login
-            </Link>
-            <Link href="/signup" style={styles.secondaryButton}>
-              Sign Up
-            </Link>
-          </div>
+          {user?.authenticated ? (
+            <div style={styles.userBlock}>
+              <p style={styles.welcomeText}>Hello, <span style={styles.username}>{user.name}</span></p>
+              <button onClick={handleLogout} style={styles.logoutButton}>
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div style={styles.authRow}>
+              <Link href="/login" style={styles.loginButton}>
+                Login
+              </Link>
+              <Link href="/signup" style={styles.secondaryButton}>
+                Sign Up
+              </Link>
+            </div>
+          )}
           <div style={styles.sidebarMeta}>
             <p style={styles.metaLine}>Theni, Tamil Nadu</p>
             <p style={styles.metaLine}>Bulk supply • Consistent batches</p>
@@ -198,5 +242,33 @@ const styles = {
   footerSecondary: {
     fontSize: '0.8rem',
     color: '#92724c',
+  },
+  userBlock: {
+    display: 'flex',
+    flexDirection: 'column' as 'column',
+    gap: '0.8rem',
+    padding: '0.5rem 0',
+  },
+  welcomeText: {
+    fontFamily: 'var(--font-serif)',
+    fontSize: '1.1rem',
+    color: '#4b3421',
+  },
+  username: {
+    fontWeight: 700,
+    color: '#8b6a3f',
+  },
+  logoutButton: {
+    padding: '0.6rem 1.2rem',
+    borderRadius: 'var(--radius-sm)',
+    backgroundColor: 'rgba(75, 52, 33, 0.08)',
+    border: '1px solid rgba(75, 52, 33, 0.2)',
+    color: '#4b3421',
+    fontWeight: 600,
+    fontSize: '0.8rem',
+    textTransform: 'uppercase' as 'uppercase',
+    letterSpacing: '0.1em',
+    cursor: 'pointer',
+    width: 'fit-content',
   },
 };

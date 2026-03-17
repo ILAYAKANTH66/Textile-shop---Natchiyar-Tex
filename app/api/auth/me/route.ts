@@ -9,6 +9,8 @@ import { verifyToken } from '@/lib/auth';
  * Used by protected client pages to verify session before showing content.
  * Returns 401 if no valid token is present.
  */
+import { prisma } from '@/lib/prisma';
+
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -18,7 +20,16 @@ export async function GET() {
     if (customerToken) {
       const payload = await verifyToken(customerToken);
       if (payload && payload.role === 'customer') {
-        return NextResponse.json({ authenticated: true, role: 'customer', userId: payload.sub });
+        const user = await prisma.user.findUnique({
+          where: { id: payload.sub as string },
+          select: { name: true, mobileNumber: true }
+        });
+        return NextResponse.json({ 
+          authenticated: true, 
+          role: 'customer', 
+          userId: payload.sub,
+          name: user?.name || user?.mobileNumber || 'Customer'
+        });
       }
     }
 
@@ -27,7 +38,16 @@ export async function GET() {
     if (adminToken) {
       const payload = await verifyToken(adminToken);
       if (payload && payload.role === 'admin') {
-        return NextResponse.json({ authenticated: true, role: 'admin', userId: payload.sub });
+        const admin = await prisma.admin.findUnique({
+          where: { id: payload.sub as string },
+          select: { email: true }
+        });
+        return NextResponse.json({ 
+          authenticated: true, 
+          role: 'admin', 
+          userId: payload.sub,
+          name: admin?.email?.split('@')[0] || 'Admin'
+        });
       }
     }
 

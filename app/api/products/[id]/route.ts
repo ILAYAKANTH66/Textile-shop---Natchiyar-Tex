@@ -18,7 +18,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     const product = await prisma.product.findUnique({
       where: { id },
-      include: { images: true },
+      include: { images: true, category: true },
     });
 
     if (!product || (!admin && !product.isAvailable)) {
@@ -39,18 +39,37 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const { id } = await params;
-    const data = await request.json();
+    const { title, description, price, imageUrl, images, categoryId, isAvailable } = await request.json();
     
+    if (!images || !Array.isArray(images) || images.length < 3) {
+      return NextResponse.json({ error: 'A minimum of 3 images must be provided.' }, { status: 400 });
+    }
+
+    const firstImage = images.length > 0 ? images[0] : imageUrl;
+
+    // Delete existing images
+    await prisma.productImage.deleteMany({
+      where: { productId: id }
+    });
+
+    // Update product and create new images
     const product = await prisma.product.update({
       where: { id },
       data: {
-        title: data.title,
-        description: data.description,
-        price: data.price ? parseFloat(data.price) : undefined,
-        imageUrl: data.imageUrl,
-        category: data.category,
-        isAvailable: data.isAvailable,
+        title,
+        description,
+        price: price ? parseFloat(price) : undefined,
+        imageUrl: firstImage,
+        categoryId: categoryId === '' ? null : categoryId,
+        isAvailable,
+        images: {
+          create: images.map((url: string, index: number) => ({
+            imageUrl: url,
+            order: index
+          }))
+        }
       },
+      include: { images: true }
     });
 
     return NextResponse.json({ success: true, product });

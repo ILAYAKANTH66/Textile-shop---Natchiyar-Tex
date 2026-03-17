@@ -3,23 +3,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default async function CollectionsPage() {
-  const products = await prisma.product.findMany({
-    where: { isAvailable: true },
-    orderBy: { createdAt: 'desc' },
+  const categories = await prisma.category.findMany({
+    orderBy: { name: 'asc' },
+    include: {
+      products: {
+        where: { isAvailable: true },
+        orderBy: { createdAt: 'desc' }
+      }
+    }
   });
 
-  // Group products by category (case-insensitive)
-  const categories: Record<string, typeof products> = products.reduce((acc: any, product: any) => {
-    let cat = (product.category || 'General').trim();
-    // Normalize to Title Case (e.g. "silk" -> "Silk")
-    cat = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
-    
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(product);
-    return acc;
-  }, {} as Record<string, typeof products>);
-
-  const categoryNames = Object.keys(categories).sort();
+  const activeCategories = categories.filter((c: any) => c.products.length > 0);
 
   return (
     <div className="animate-fade-in">
@@ -28,19 +22,19 @@ export default async function CollectionsPage() {
         <p style={styles.subtitle}>Explore our textiles curated by material and weave.</p>
       </header>
 
-      {categoryNames.length === 0 ? (
+      {activeCategories.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '5rem' }}>
           <p>No collections found yet.</p>
         </div>
       ) : (
-        categoryNames.map((category) => (
-          <section key={category} style={styles.categorySection}>
+        activeCategories.map((category: any) => (
+          <section key={category.id} style={styles.categorySection}>
             <div style={styles.categoryHeader}>
-              <h2 style={styles.categoryTitle}>{category}</h2>
+              <h2 style={styles.categoryTitle}>{category.name}</h2>
               <div style={styles.categoryLine}></div>
             </div>
             <div style={styles.grid}>
-              {categories[category].map((product: any) => (
+              {category.products.map((product: any) => (
                 <Link href={`/product/${product.id}`} key={product.id} style={styles.card}>
                   <div style={styles.imageWrapper}>
                     <Image 
@@ -100,11 +94,16 @@ const styles = {
     backgroundColor: 'var(--color-border)',
   },
   grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    display: 'flex',
+    overflowX: 'auto' as 'auto',
     gap: '2rem',
+    paddingBottom: '2rem',
+    scrollbarWidth: 'none' as 'none', // Firefox
+    msOverflowStyle: 'none' as 'none', // IE/Edge
   },
   card: {
+    flex: '0 0 auto',
+    width: '280px',
     backgroundColor: 'var(--color-surface)',
     borderRadius: 'var(--radius-md)',
     overflow: 'hidden',
