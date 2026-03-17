@@ -35,7 +35,7 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
   if (!product) {
     return <div style={{ padding: '5rem', textAlign: 'center' }}>Product not found.</div>;
   }
-
+  console.log(product);
   const gallery =
     product.images && product.images.length > 0
       ? product.images.sort((a: any, b: any) => a.order - b.order).map((i: any) => i.imageUrl).filter(Boolean)
@@ -58,7 +58,7 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
       alert("Minimum order quantity is 100 units.");
       return;
     }
-    
+
     try {
       const res = await fetch('/api/cart', {
         method: 'POST',
@@ -79,19 +79,21 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
   return (
     <div className="container animate-fade-in" style={styles.container}>
       <Link href="/collections" style={styles.backLink}>← Back to Collections</Link>
-      
+
       <div style={styles.grid}>
         <div style={styles.imageCol}>
           {gallery.length > 0 ? (
             <>
               <div style={styles.mainImage}>
-                <Image
+                <img
                   src={currentImage}
                   alt={product.title}
-                  fill
-                  sizes="(max-width: 900px) 100vw, 50vw"
-                  style={{ objectFit: 'cover' }}
-                  priority
+                  onError={(e) => e.currentTarget.src='/fallback.jpg'}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
                 />
                 {gallery.length > 1 && (
                   <>
@@ -103,8 +105,8 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
               {gallery.length > 1 && (
                 <div style={styles.thumbRow}>
                   {gallery.map((url: any, idx: number) => (
-                    <div 
-                      key={url + idx} 
+                    <div
+                      key={url + idx}
                       onClick={() => setCurrentImageIndex(idx)}
                       style={{
                         ...styles.thumb,
@@ -112,7 +114,16 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
                         borderWidth: currentImageIndex === idx ? '2px' : '1px'
                       }}
                     >
-                      <Image src={url} alt={`Thumbnail ${idx}`} fill sizes="80px" style={{ objectFit: 'cover' }} />
+                      <img
+                        src={url}
+                        alt={`Thumbnail ${idx}`}
+                        onError={(e) => e.currentTarget.src='/fallback.jpg'}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -124,16 +135,16 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
             </div>
           )}
         </div>
-        
+
         <div style={styles.contentCol}>
           <h1 style={styles.title}>{product.title}</h1>
           <p style={styles.price}>₹{product.price.toFixed(2)}</p>
-          
+
           <div style={styles.divider}></div>
-          
+
           <h3 style={styles.descriptionTitle}>Fabric details</h3>
           <p style={styles.descriptionText}>{product.description}</p>
-          
+
           <div style={styles.stockStatus}>
             {product.isAvailable ? (
               <span style={{ color: 'var(--color-success)' }}>● In Stock - Ready to order</span>
@@ -145,19 +156,19 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
           {product.isAvailable && (
             <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <label htmlFor="qty" style={{ fontWeight: 600 }}>Quantity:</label>
-              <input 
+              <input
                 id="qty"
-                type="number" 
-                min="100" 
-                value={quantity} 
+                type="number"
+                min="100"
+                value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
                 style={styles.qtyInput}
               />
             </div>
           )}
-          
+
           <div style={styles.actions}>
-            <button 
+            <button
               onClick={handleAddToCart}
               disabled={!product.isAvailable || quantity < 100}
               style={{
@@ -168,8 +179,8 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
             >
               Add to Cart
             </button>
-            <Link 
-              href={product.isAvailable && quantity >= 100 ? `/checkout?product=${product.id}&quantity=${quantity}` : '#'} 
+            <Link
+              href={product.isAvailable && quantity >= 100 ? `/checkout?product=${product.id}&quantity=${quantity}` : '#'}
               style={{
                 ...styles.orderBtn,
                 opacity: (!product.isAvailable || quantity < 100) ? 0.5 : 1,
@@ -182,11 +193,11 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
               Checkout Now
             </Link>
           </div>
-          
+
           <div style={styles.deliveryInfo}>
-             <p>⚖️ Minimum order quantity: 100 units</p>
-             <p>✨ Premium cotton material for wholesale supply</p>
-             <p>🚚 We will contact you after reviewing your order request</p>
+            <p>⚖️ Minimum order quantity: 100 units</p>
+            <p>✨ Premium cotton material for wholesale supply</p>
+            <p>🚚 We will contact you after reviewing your order request</p>
           </div>
         </div>
       </div>

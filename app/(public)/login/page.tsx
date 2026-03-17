@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+import { Suspense } from 'react';
+
+function LoginForm() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState(1);
@@ -139,6 +141,14 @@ export default function LoginPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="container flex-center" style={{ minHeight: '60vh' }}>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
 

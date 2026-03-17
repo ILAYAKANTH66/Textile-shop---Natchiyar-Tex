@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
-import Image from 'next/image';
 import Link from 'next/link';
+import FallbackImage from '@/components/FallbackImage';
 
 export default async function CollectionsPage() {
   const categories = await prisma.category.findMany({
@@ -37,12 +37,10 @@ export default async function CollectionsPage() {
               {category.products.map((product: any) => (
                 <Link href={`/product/${product.id}`} key={product.id} style={styles.card}>
                   <div style={styles.imageWrapper}>
-                    <Image 
+                    <FallbackImage 
                       src={product.imageUrl} 
                       alt={product.title} 
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
                   </div>
                   <div style={styles.cardContent}>

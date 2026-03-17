@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
-import Image from 'next/image';
 import Link from 'next/link';
+import FallbackImage from '@/components/FallbackImage';
 
 export const revalidate = 60; // Revalidate every minute
 
@@ -39,11 +39,10 @@ export default async function HomePage() {
             <Link href="/collections" style={styles.storyLink}>View Collections →</Link>
           </div>
           <div style={styles.storyImage}>
-            <Image 
+            <FallbackImage 
               src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1000&auto=format&fit=crop" 
               alt="Textile Loom" 
-              fill 
-              style={{ objectFit: 'cover', borderRadius: 'var(--radius-md)' }} 
+              style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: 'var(--radius-md)' }} 
             />
           </div>
         </div>
@@ -58,7 +57,11 @@ export default async function HomePage() {
           {products.slice(0, 6).map((product: any) => (
             <Link href={`/product/${product.id}`} key={product.id} style={styles.scrollCard}>
               <div style={styles.scrollImageWrapper}>
-                <Image src={product.imageUrl} alt={product.title} fill style={{ objectFit: 'cover' }} />
+                <FallbackImage 
+                  src={product.imageUrl} 
+                  alt={product.title} 
+                  style={{ objectFit: 'cover', width: '100%', height: '100%' }} 
+                />
               </div>
               <div style={styles.scrollInfo}>
                 <h4 style={styles.scrollTitle}>{product.title}</h4>
