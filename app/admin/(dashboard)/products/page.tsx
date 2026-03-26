@@ -78,7 +78,11 @@ export default function ProductsManager() {
     } else {
       // If editing and no new files selected, use existing images
       if (editingProduct.images && editingProduct.images.length >= 3) {
-        uploadedUrls = editingProduct.images.map((img: any) => img.imageUrl);
+        uploadedUrls = typeof editingProduct.images[0] === 'string' 
+          ? editingProduct.images 
+          : editingProduct.images.map((img: any) => img.imageUrl);
+      } else if (editingProduct.legacyImages && editingProduct.legacyImages.length >= 3) {
+        uploadedUrls = editingProduct.legacyImages.map((img: any) => img.imageUrl);
       } else {
         alert('Please provide at least 3 images for the product.');
         setSubmitting(false);

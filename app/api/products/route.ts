@@ -29,7 +29,7 @@ export async function GET(request: Request) {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        include: { images: true, category: true },
+        include: { legacyImages: true, category: true },
       }),
       prisma.product.count({ where }),
     ]);
@@ -72,14 +72,15 @@ export async function POST(request: Request) {
         imageUrl: firstImage,
         categoryId: categoryId || null,
         isAvailable: isAvailable ?? true,
-        images: {
+        images,
+        legacyImages: {
           create: images.map((url: string, index: number) => ({
             imageUrl: url,
             order: index
           }))
         }
       },
-      include: { category: true, images: true }
+      include: { category: true, legacyImages: true }
     });
 
     return NextResponse.json({ success: true, product });

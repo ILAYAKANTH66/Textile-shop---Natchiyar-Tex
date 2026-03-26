@@ -19,7 +19,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     const product = await prisma.product.findUnique({
       where: { id },
-      include: { images: true, category: true },
+      include: { legacyImages: true, category: true },
     });
 
     if (!product || (!admin && !product.isAvailable)) {
@@ -48,7 +48,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const firstImage = images.length > 0 ? images[0] : imageUrl;
 
-    // Delete existing images
+    // Delete existing legacy images
     await prisma.productImage.deleteMany({
       where: { productId: id }
     });
@@ -63,14 +63,15 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         imageUrl: firstImage,
         categoryId: categoryId === '' ? null : categoryId,
         isAvailable,
-        images: {
+        images,
+        legacyImages: {
           create: images.map((url: string, index: number) => ({
             imageUrl: url,
             order: index
           }))
         }
       },
-      include: { images: true }
+      include: { legacyImages: true }
     });
 
     return NextResponse.json({ success: true, product });

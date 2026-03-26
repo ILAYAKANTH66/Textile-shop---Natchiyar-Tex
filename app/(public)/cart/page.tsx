@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getProductImages } from '@/lib/imageUtils';
 
 type CartItem = {
   id: string;
@@ -11,7 +12,8 @@ type CartItem = {
     title: string;
     price: number;
     imageUrl: string;
-    images?: { imageUrl: string }[];
+    images?: string[];
+    legacyImages?: { imageUrl: string }[];
   };
 };
 
@@ -122,7 +124,7 @@ export default function CartPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '1.5rem' }}>
           <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 12 }}>
             {items.map((it) => {
-              const img = it.product.images?.[0]?.imageUrl || it.product.imageUrl;
+              const img = getProductImages(it.product)[0];
               return (
                 <div key={it.id} style={{ display: 'grid', gridTemplateColumns: '90px 1fr 160px', gap: '1rem', padding: '1rem', borderBottom: '1px solid var(--color-border)' }}>
                   <div style={{ position: 'relative', width: 90, height: 110, borderRadius: 10, overflow: 'hidden' }}>

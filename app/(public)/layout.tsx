@@ -54,7 +54,7 @@ export default function PublicLayout({
         <nav aria-label="Primary" style={styles.nav}>
           <Link href="/shop" style={styles.navItem}>Shop</Link>
           <Link href="/collections" style={styles.navItem}>Collections</Link>
-          <Link href="/#about" style={styles.navItem}>About</Link>
+          <Link href="/about" style={styles.navItem}>About</Link>
           <Link href="/contact" style={styles.navItem}>Contact</Link>
           <Link href="/cart" style={styles.navItem}>Cart</Link>
           <Link href="/orders" style={styles.navItem}>My Orders</Link>

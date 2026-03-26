@@ -15,7 +15,7 @@ export async function GET() {
           items: {
             include: {
               product: {
-                include: { images: true },
+                include: { legacyImages: true },
               },
             },
           },
@@ -23,7 +23,7 @@ export async function GET() {
       })) ??
       (await prisma.cart.create({
         data: { userId: session.userId },
-        include: { items: { include: { product: { include: { images: true } } } } },
+        include: { items: { include: { product: { include: { legacyImages: true } } } } },
       }));
 
     return NextResponse.json({ success: true, cart });

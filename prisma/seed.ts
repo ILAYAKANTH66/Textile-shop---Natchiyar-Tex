@@ -239,7 +239,8 @@ async function main() {
           imageUrl: p.images[0], // primary image
           isAvailable: true,
           categoryId: category?.id,
-          images: {
+          images: p.images,
+          legacyImages: {
             create: p.images.map((imgUrl, idx) => ({
               imageUrl: imgUrl,
               order: idx

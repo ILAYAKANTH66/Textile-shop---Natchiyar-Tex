@@ -4,6 +4,8 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import FallbackImage from '@/components/FallbackImage';
+import BackButton from '@/components/BackButton';
+import { getProductImages } from '@/lib/imageUtils';
 
 async function getCustomerOrders() {
   const cookieStore = await cookies();
@@ -33,6 +35,7 @@ export default async function OrdersPage() {
 
   return (
     <div className="container animate-fade-in" style={styles.container}>
+      <BackButton title="← Back" />
       <h1 style={styles.title}>My Orders</h1>
       
       {orders.length === 0 ? (
@@ -66,9 +69,7 @@ export default async function OrdersPage() {
                 {order.orderItems.map((item: any) => (
                   <div key={item.id} style={styles.itemRow}>
                     <div style={styles.itemImage}>
-                       {item.product.imageUrl ? (
-                         <FallbackImage src={item.product.imageUrl} alt={item.product.title} style={{objectFit: 'cover', width: '100%', height: '100%'}} />
-                       ) : <div style={{width:'100%', height:'100%', backgroundColor:'#eee'}}/>}
+                       <FallbackImage src={getProductImages(item.product)[0]} alt={item.product.title} style={{objectFit: 'cover', width: '100%', height: '100%'}} />
                     </div>
                     <div style={styles.itemDetails}>
                       <h4 style={styles.itemTitle}>{item.product.title}</h4>

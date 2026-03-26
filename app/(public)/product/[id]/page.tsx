@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
+import { getProductImages } from '@/lib/imageUtils';
 
 export default function ProductDetailPage(props: { params: Promise<{ id: string }> }) {
   const [product, setProduct] = useState<any>(null);
@@ -36,12 +38,7 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
     return <div style={{ padding: '5rem', textAlign: 'center' }}>Product not found.</div>;
   }
   console.log(product);
-  const gallery =
-    product.images && product.images.length > 0
-      ? product.images.sort((a: any, b: any) => a.order - b.order).map((i: any) => i.imageUrl).filter(Boolean)
-      : product.imageUrl
-        ? [product.imageUrl]
-        : [];
+  const gallery = getProductImages(product);
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? gallery.length - 1 : prev - 1));
@@ -78,7 +75,7 @@ export default function ProductDetailPage(props: { params: Promise<{ id: string 
 
   return (
     <div className="container animate-fade-in" style={styles.container}>
-      <Link href="/collections" style={styles.backLink}>← Back to Collections</Link>
+      <BackButton title="← Back to Collections" />
 
       <div style={styles.grid}>
         <div style={styles.imageCol}>

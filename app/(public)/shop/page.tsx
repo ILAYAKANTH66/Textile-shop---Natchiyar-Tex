@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import FallbackImage from '@/components/FallbackImage';
+import { getProductImages } from '@/lib/imageUtils';
 
 export default async function ShopPage() {
   const products = await prisma.product.findMany({
@@ -22,7 +23,7 @@ export default async function ShopPage() {
           <Link href={`/product/${product.id}`} key={product.id} style={styles.card}>
             <div style={styles.imageWrapper}>
               <FallbackImage 
-                src={product.imageUrl} 
+                src={getProductImages(product)[0]} 
                 alt={product.title} 
                 style={{ objectFit: 'cover', width: '100%', height: '100%' }}
               />
