@@ -52,7 +52,7 @@ function LoginForm() {
       } catch (err) {
         setError('An error occurred. Please try again.');
       } finally {
-        setLoading(false);
+        setLoading(true);
       }
     }
   };
@@ -97,10 +97,10 @@ function LoginForm() {
       <div style={styles.card}>
         <h1 style={styles.title}>Welcome to Natchiyar Tex</h1>
         <p style={styles.subtitle}>
-          {step === 1 
-            ? 'Enter your email or mobile number to sign in or create an account.' 
-            : isEmailLogin 
-              ? `Enter password for ${identifier}` 
+          {step === 1
+            ? 'Enter your email or mobile number to sign in or create an account.'
+            : isEmailLogin
+              ? `Enter password for ${identifier}`
               : `Enter the OTP sent to ${identifier} (Use 123456 for demo)`
           }
         </p>
@@ -116,7 +116,7 @@ function LoginForm() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="you@example.com or 9876543210"
-                style={{...styles.input, padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)'}}
+                style={{ ...styles.input, padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)' }}
                 required
               />
             </div>
@@ -141,7 +141,7 @@ function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="********"
-                  style={{...styles.input, padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)'}}
+                  style={{ ...styles.input, padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)' }}
                   required
                 />
               </div>
@@ -153,7 +153,7 @@ function LoginForm() {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="123456"
-                  style={{...styles.input, textAlign: 'center', letterSpacing: '0.25rem', fontSize: '1.25rem'}}
+                  style={{ ...styles.input, textAlign: 'center', letterSpacing: '0.25rem', fontSize: '1.25rem' }}
                   required
                 />
               </div>
@@ -161,9 +161,9 @@ function LoginForm() {
             <button type="submit" style={styles.button} disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
-            <button 
-              type="button" 
-              onClick={() => setStep(1)} 
+            <button
+              type="button"
+              onClick={() => setStep(1)}
               style={styles.textButton}
             >
               Change Email/Mobile
