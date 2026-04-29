@@ -52,7 +52,7 @@ function LoginForm() {
       } catch (err) {
         setError('An error occurred. Please try again.');
       } finally {
-        setLoading(true);
+        setLoading(false);
       }
     }
   };
